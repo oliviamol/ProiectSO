@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -501,6 +502,60 @@ void verifica_link_dangling(const char *nume_link)
     }
 }
 
+
+
+
+
+
+
+
+
+
+//PHASE 2 
+//1. functia de stergere district si tot ce contine
+
+void remove_district(const char *role, const char *district)
+{
+  char symlink[256];
+  snprintf(symlink,sizeof(symlink),"active_reports-%s",district);
+    if(strcmp(role,"manager")!=0)
+    {
+        printf("Rol incorect !!!!!!");
+        return;
+    }
+
+pid_t s=fork();
+if( s == 0)
+{
+    //procesul copil
+ execlp("rm","rm","-rf",district,NULL);
+
+}
+if(s != 0 )
+{
+   //procesul parinte
+    waitpid(s,NULL,0);
+if(unlink(symlink)==-1)
+{
+    printf("SYMLINK ul nu a fost sters\n");
+    return;
+}
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
     char role[20]="", user[31]="", district[50]="", action[20]="";
@@ -549,7 +604,15 @@ int main(int argc, char *argv[])
             // colectam conditiile ramase pana la urmatorul flag
             while(i+1<argc && argv[i+1][0]!='-')
                 conditii[nr_conditii++]=argv[++i];
-        }
+        } else if(strcmp(argv[i],"--remove_district")==0)
+        {
+            strcpy(action,"remove_district");
+            if(i+1<argc)
+            {
+            strcpy(district, argv[++i]);
+            }
+        } else if(strcmp(argv[i],))
+       
     }
 
     char cale_r[150];
@@ -617,6 +680,14 @@ int main(int argc, char *argv[])
             loggeddistrict(district,"filter",role,user);
         }
     }
+    else if(strcmp(action,"remove_district")==0)
+    {
+    
+         remove_district(role,district);
+
+    }
 
     return 0;
 }
+
+
