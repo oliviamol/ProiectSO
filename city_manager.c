@@ -516,8 +516,8 @@ void verifica_link_dangling(const char *nume_link)
 
 void remove_district(const char *role, const char *district)
 {
-  char symlink[256];
-  snprintf(symlink,sizeof(symlink),"active_reports-%s",district);
+  char nsymlink[256];
+  snprintf(nsymlink,sizeof(nsymlink),"active_reports-%s",district);
     if(strcmp(role,"manager")!=0)
     {
         printf("Rol incorect !!!!!!");
@@ -525,20 +525,29 @@ void remove_district(const char *role, const char *district)
     }
 
 pid_t s=fork();
+if(s<0)
+{
+    printf("eroare la fork");
+    return;
+}
 if( s == 0)
 {
     //procesul copil
  execlp("rm","rm","-rf",district,NULL);
+ perror("eroare la execlp");
 
 }
 if(s != 0 )
 {
    //procesul parinte
     waitpid(s,NULL,0);
-if(unlink(symlink)==-1)
+if(unlink(nsymlink)==-1)
 {
     printf("SYMLINK ul nu a fost sters\n");
     return;
+}
+else{
+    printf("SYMLINK ul a fost sters cu succes\n");
 }
 
 }
@@ -611,7 +620,7 @@ int main(int argc, char *argv[])
             {
             strcpy(district, argv[++i]);
             }
-        } else if(strcmp(argv[i],))
+        } 
        
     }
 
