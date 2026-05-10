@@ -560,9 +560,48 @@ else{
 
 
 
+//functia de la punctul 3 phase2
 
+void notifica_monitor(const char *district, const char *role, const char *user)
+{
+    char log_msg[256];
+    time_t t = time(NULL);
 
+    int fd = open(".monitor_pid",O_RDONLY);
+    if (fd == -1)
+    {
+        snprintf(log_msg, sizeof(log_msg),
+                 "%ld %s %s monitor_NOT_notified (no .monitor_pid)\n",
+                 (long)t, user, role);
+    }
+    else
+    {
+        char buf[32] = {0};
+        read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        pid_t monitor_pid = (pid_t)atoi(buf);
+        if (monitor_pid <= 0 || kill(monitor_pid, SIGUSR1) == -1)
+            snprintf(log_msg, sizeof(log_msg),
+                     "%ld %s %s monitor_NOT_notified\n",
+                     (long)t, user, role);
+        else
+        {
+            printf("Monitor (PID %d) notificat.\n", (int)monitor_pid);
+            snprintf(log_msg, sizeof(log_msg),
+                     "%ld %s %s monitor_notified (PID %d)\n",
+                     (long)t, user, role, (int)monitor_pid);
+        }
+    }
 
+    char filepath[150];
+    sprintf(filepath, "%s/logged_district", district);
+    int lfd = open(filepath, O_WRONLY | O_APPEND);
+    if (lfd != -1)
+    {
+        write(lfd, log_msg, strlen(log_msg));
+        close(lfd);
+    }
+}
 
 
 int main(int argc, char *argv[])
@@ -639,23 +678,28 @@ int main(int argc, char *argv[])
         {
             add(district,user);
             gestioneaza_link(district);
-            loggeddistrict(district,"add",role,user);
+            if(strcmp(role,"manager")==0)
+              loggeddistrict(district,"add",role,user);
+             notifica_monitor(district,role,user); 
         }
     }
-    else if(strcmp(action,"list")==0)
+     else if(strcmp(action,"list")==0)
     {
         if(verifica_acces(cale_r,role,'r'))
         {
             list(district);
-            loggeddistrict(district,"list",role,user);
+             if(strcmp(role,"manager")==0)
+              loggeddistrict(district,"list",role,user);
         }
     }
+           
     else if(strcmp(action,"view")==0)
     {
         if(verifica_acces(cale_r,role,'r'))
         {
             view_report(district,val_aux);
-            loggeddistrict(district,"view",role,user);
+             if(strcmp(role,"manager")==0)
+               loggeddistrict(district,"view",role,user);
         }
     }
     else if(strcmp(action,"remove")==0)
@@ -666,7 +710,8 @@ int main(int argc, char *argv[])
         {
             sterge(district,val_aux);
             gestioneaza_link(district);
-            loggeddistrict(district,"remove_report",role,user);
+             if(strcmp(role,"manager")==0)
+              loggeddistrict(district,"remove_report",role,user);
         }
     }
     else if(strcmp(action,"update")==0)
@@ -686,7 +731,8 @@ int main(int argc, char *argv[])
         else if(verifica_acces(cale_r,role,'r'))
         {
             filter_reports(district,nr_conditii,conditii);
-            loggeddistrict(district,"filter",role,user);
+             if(strcmp(role,"manager")==0)
+               loggeddistrict(district,"filter",role,user);
         }
     }
     else if(strcmp(action,"remove_district")==0)
