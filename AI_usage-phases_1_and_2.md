@@ -50,3 +50,26 @@ A generat functia cu if-uri pentru fiecare camp. Problemele pe care le-am gasit:
 - Ca AI-ul genereaza cod care pare corect dar are greseli subtile (atoi vs atol)
 - Ca trebuie sa testezi fiecare caz in parte, nu sa presupui ca merge
 - Ca e mai bine sa intelegi codul generat si sa il rescrii cu cuvintele tale decat sa il copiezi direct
+
+
+
+
+
+
+# AI Usage - Phase 2
+
+## Ce tool am folosit
+Claude 
+
+## Pentru ce am folosit AI-ul
+
+In Phase 2 am folosit AI-ul pentru a intelege mai bine 
+anumite concepte si functii de sistem.
+
+Concepte despre care am cerut explicatii:
+- Cum functioneaza `sigaction()` si diferenta fata de `signal()`
+- Ce face `pause()` si de ce e potrivit pentru asteptarea semnalelor
+- Cum functioneaza `kill()` pentru trimiterea semnalelor intre procese
+
+
+
